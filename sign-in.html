@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Registration</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(120deg, #a8e6cf, #d4a5d8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .container h2 {
+      margin-bottom: 20px;
+      color: #34495e;
+    }
+
+    .container input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #dfe6e9;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .container input:focus {
+      outline: none;
+      border-color: #74b9ff;
+      box-shadow: 0 0 5px rgba(116, 185, 255, 0.5);
+    }
+
+    .container button {
+      background: #74b9ff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .container button:hover {
+      background: #0984e3;
+    }
+
+    .container a {
+      display: block;
+      margin-top: 10px;
+      color: #3498db;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .container a:hover {
+      text-decoration: underline;
+    }
+
+    .create-account {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #dfe6e9;
+    }
+
+    .create-account button {
+      background: #55efc4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .create-account button:hover {
+      background: #00b894;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+  <script>
+    function toggleForms() {
+      document.getElementById('login-form').classList.toggle('hidden');
+      document.getElementById('register-form').classList.toggle('hidden');
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div id="login-form">
+      <h2>Login</h2>
+      <form>
+        <input type="text" placeholder="Username" required>
+        <input type="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+      </form>
+      <a href="#">Forgot your password?</a>
+      <div class="create-account">
+        <p>Don’t have an account?</p>
+        <button onclick="toggleForms()">Create One</button>
+      </div>
+    </div>
+
+    <div id="register-form" class="hidden">
+      <h2>Register</h2>
+      <form>
+        <input type="text" placeholder="Full Name" required>
+        <input type="email" placeholder="Email" required>
+        <input type="password" placeholder="Password" required>
+        <input type="password" placeholder="Confirm Password" required>
+        <button type="submit">Register</button>
+      </form>
+      <div class="create-account">
+        <p>Already have an account?</p>
+        <button onclick="toggleForms()">Login</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

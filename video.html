@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Video Quiz</title>
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #6a11cb, orange);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #video-container { 
+            position: relative; 
+            margin: 20px auto;
+            width: 80%; 
+            max-width: 900px; 
+        }
+        video {
+            width: 100%; 
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            display: block;
+        }
+        #quiz-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10;
+            transform: scale(0);
+            opacity: 0;
+            transition: all 0.5s ease;
+            border-radius: 10px;
+        }
+        #quiz-overlay.active {
+            transform: scale(1);
+            opacity: 1;
+        }
+        #quiz-content {
+            background: linear-gradient(135deg, #ff6a00, #ee0979);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6);
+            max-width: 800px;
+            width: 90%;
+            animation: slideIn 0.8s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: #ffeb3b;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .question {
+            margin: 20px 0;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .question p {
+            margin-top: 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .option-wrapper {
+            position: relative;
+            min-width: 120px;
+        }
+        .option-wrapper input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .option-wrapper label {
+            display: inline-block;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .option-wrapper label:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .option-wrapper input[type="radio"]:checked + label {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #ffeb3b;
+            box-shadow: 0 0 15px rgba(255, 235, 59, 0.5);
+            transform: translateY(-2px);
+        }
+        .option-wrapper input[type="radio"]:focus + label {
+            outline: 2px solid #ffeb3b;
+            outline-offset: 2px;
+        }
+        button#submitQuiz {
+            background: #ff6a00;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        button#submitQuiz:hover {
+            background: #ff4500;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        button#submitQuiz:active {
+            transform: translateY(0);
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .result-success {
+            background: rgba(76, 175, 80, 0.3);
+        }
+        .result-error {
+            background: rgba(244, 67, 54, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div id="video-container">
+    <video id="myVideo" controls>
+        <source src="mariana.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <div id="quiz-overlay">
+        <div id="quiz-content">
+            <h2 id="quiz-title">Quiz Time!</h2>
+            <div id="quiz-questions"></div>
+            <button id="submitQuiz">Submit Answers</button>
+            <div id="result"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const video = document.getElementById('myVideo');
+const quizOverlay = document.getElementById('quiz-overlay');
+const quizQuestions = document.getElementById('quiz-questions');
+const submitButton = document.getElementById('submitQuiz');
+const result = document.getElementById('result');
+
+const segments = [
+{
+                endTime: 180, 
+                quiz: {
+                    title: "Segment 1 Quiz",
+                    questions: [
+                        { question: "What was the name of the ship which found Mariana Trench?", options: ["Deep Sea", "RMS Challenger", "HMSChallenger"], answer: "HMS Challenger" },
+                        { question: "What is the name of the deepest point of Mariana Trench?", options: ["Baikal Deep", "Challenger Abyss", "None"], answer: "Challenger Deep" }
+                    ]
+                }
+            },
+            {
+                endTime: 350, 
+                quiz: {
+                    title: "Segment 2 Quiz",
+                    questions: [
+                        { question: "What year was the first deep-sea exploration?", options: ["1945", "1950", "1960"], answer: "1960" },
+                        { question: "Who led the first expedition to the Mariana Trench?", options: ["James Cameron", "Don Walsh", "Jacques Cousteau"], answer: "Don Walsh" }
+                    ]
+                }
+            },
+            {
+                endTime: 540, // 9 minutes
+                quiz: {
+                    title: "Segment 3 Quiz",
+                    questions: [
+                        { question: "What is the Mariana Trench also known as?", options: ["Mariana Abyss", "The Great Trench", "The Challenger Deep"], answer: "Mariana Abyss" },
+                        { question: "Who was the first to dive to the bottom of the trench?", options: ["James Cameron", "Don Walsh", "Jacques Cousteau"], answer: "James Cameron" }
+                    ]
+                }
+            },
+            {
+                endTime: 600, // 10 minutes
+                quiz: {
+                    title: "Segment 4 Quiz",
+                    questions: [
+                        { question: "In what year was the Mariana Trench first discovered?", options: ["1850", "1900", "1945"], answer: "1850" },
+                        { question: "What is the average depth of the Mariana Trench?", options: ["5 miles", "7 miles", "11 miles"], answer: "7 miles" }
+                    ]
+                }
+            },
+            {
+                endTime: 720, // 12 minutes
+                quiz: {
+                    title: "Segment 5 Quiz",
+                    questions: [
+                        { question: "How deep is the Challenger Deep?", options: ["10,994 meters", "8,000 meters", "11,000 meters"], answer: "10,994 meters" },
+                        { question: "What year did James Cameron complete his solo dive?", options: ["2010", "2012", "2015"], answer: "2012" }
+                    ]
+                }
+            },
+            {
+                endTime: video.duration - 1, // Just before the end of the video
+                quiz: {
+                    title: "Final Quiz",
+                    questions: [
+                        { question: "What animal was discovered near the Mariana Trench?", options: ["Giant Squid", "Giant Fish", "Giant Crab"], answer: "Giant Squid" },
+                        { question: "How many kilometers long is the Mariana Trench?", options: ["2,550 km", "3,550 km", "5,000 km"], answer: "2,550 km" }
+                    ]
+                }
+            }
+];
+
+let currentSegmentIndex = 0;
+let quizActive = false;
+
+function displayQuiz(quiz) {
+    if (quizActive) return;
+    
+    quizActive = true;
+    quizQuestions.innerHTML = "";
+    document.getElementById('quiz-title').textContent = quiz.title;
+    result.textContent = "";
+    result.className = "";
+
+    quiz.questions.forEach((q, index) => {
+        const questionDiv = document.createElement("div");
+        questionDiv.className = "question";
+
+        const questionText = document.createElement('p');
+        questionText.textContent = `${index + 1}. ${q.question}`;
+        questionDiv.appendChild(questionText);
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = "options";
+
+        q.options.forEach(option => {
+            const id = `question${index}-${option.replace(/\s+/g, '')}`;
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = "option-wrapper";
+
+            const radio = document.createElement('input');
+            radio.type = "radio";
+            radio.name = `question${index}`;
+            radio.value = option;
+            radio.id = id;
+
+            const label = document.createElement('label');
+            label.textContent = option;
+            label.setAttribute('for', id);
+
+            wrapper.appendChild(radio);
+            wrapper.appendChild(label);
+            optionsDiv.appendChild(wrapper);
+        });
+
+        questionDiv.appendChild(optionsDiv);
+        quizQuestions.appendChild(questionDiv);
+    });
+
+    quizOverlay.classList.add('active');
+}
+
+function handleQuizSubmission() {
+    const segment = segments[currentSegmentIndex];
+    let score = 0;
+    let allAnswered = true;
+
+    segment.quiz.questions.forEach((q, index) => {
+        const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+        if (!selectedOption) {
+            allAnswered = false;
+        } else if (selectedOption.value === q.answer) {
+            score++;
+        }
+    });
+
+    if (!allAnswered) {
+        result.textContent = "Please answer all questions before submitting!";
+        result.className = "result-error";
+        return;
+    }
+
+    result.textContent = `You scored ${score} out of ${segment.quiz.questions.length}!`;
+    result.className = "result-success";
+    
+    // Only proceed to next segment if we haven't reached the end
+    if (currentSegmentIndex < segments.length - 1) {
+        setTimeout(() => {
+            quizOverlay.classList.remove('active');
+            quizActive = false;
+            currentSegmentIndex++;
+            video.play();
+        }, 2000);
+    } else {
+        // If this is the last segment, just hide the quiz after showing the score
+        setTimeout(() => {
+            quizOverlay.classList.remove('active');
+            quizActive = false;
+            video.play();
+        }, 2000);
+    }
+}
+
+video.addEventListener('timeupdate', () => {
+    if (currentSegmentIndex < segments.length && !quizActive) {
+        const segment = segments[currentSegmentIndex];
+        if (video.currentTime >= segment.endTime) {
+            video.pause();
+            displayQuiz(segment.quiz);
+        }
+    }
+});
+
+submitButton.addEventListener('click', handleQuizSubmission);
+
+// Prevent quiz from showing again if user seeks back in video
+video.addEventListener('seeking', () => {
+    const currentTime = video.currentTime;
+    currentSegmentIndex = segments.findIndex(segment => currentTime < segment.endTime);
+    if (currentSegmentIndex === -1) {
+        currentSegmentIndex = segments.length;
+    }
+});
+
+// Handle video end
+video.addEventListener('ended', () => {
+    // Only reset if we've completed all segments
+    if (currentSegmentIndex >= segments.length) {
+        currentSegmentIndex = 0;
+    }
+    quizActive = false;
+});
+</script>
+</body>
+</html>

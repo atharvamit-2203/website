@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: grey;
+        }
+        h1 {
+            text-align: center;
+            color: black;
+        }
+        .attendance-checker {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .attendance-checker label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        .attendance-checker select,
+        .attendance-checker button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Attendance Checker</h1>
+
+    <div class="attendance-checker">
+        <label for="student-name">Select Student</label>
+        <select id="student-name">
+            <option value="" disabled selected>-- Choose a Student --</option>
+            <option value="Arun">Arun</option>
+            <option value="Jayant">Jayant</option>
+            <option value="Sharad">Sharad</option>
+            <option value="Madan">Madan</option>
+            <option value="Sadan">Sadan</option>
+            <option value="Jayashree">Jayashree</option>
+            <option value="Pratibha">Pratibha</option>
+            <option value="Madhuri">Madhuri</option>
+        </select>
+
+        <button id="check-attendance" type="button">Check Attendance</button>
+
+        <div class="result" id="result">
+            Please select a student to check their attendance.
+        </div>
+    </div>
+
+    <script>
+        const attendanceData = {
+            Arun: "Absent",
+            Jayant: "Presrnt",
+            Sharad: "Present",
+            Sadan: "Absent",
+            Madan: "Present",
+            Sadan: "Present",
+            Jayashree: "Absent",
+            Pratibha: "Presrnt",
+        };
+
+        const checkButton = document.getElementById("check-attendance");
+        const resultDiv = document.getElementById("result");
+
+        checkButton.addEventListener("click", () => {
+            const studentName = document.getElementById("student-name").value;
+
+            if (!studentName) {
+                resultDiv.textContent = "Please select a student.";
+                resultDiv.style.color = "red";
+                return;
+            }
+
+            const status = attendanceData[studentName] || "No record found.";
+            resultDiv.textContent = `${studentName}'s Attendance: ${status}`;
+            resultDiv.style.color = status === "Present" ? "green" : (status === "Absent" ? "red" : "orange");
+        });
+    </script>
+
+</body>
+</html>

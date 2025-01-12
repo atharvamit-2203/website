@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landmark Puzzle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+        }
+
+        h1 {
+            margin: 20px;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .landmark {
+            margin: 20px 0;
+        }
+
+        .landmark img {
+            max-width: 300px;
+            height: auto;
+            margin: 10px;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .option {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: lightblue;
+            border: 2px solid #000;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .option:hover {
+            background-color: #87ceeb;
+        }
+
+        .clue {
+            margin: 15px 0;
+            font-size: 1.2em;
+        }
+
+        .result {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+
+        .next-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .next-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .summary {
+            text-align: left;
+            margin: 20px auto;
+            max-width: 800px;
+            font-size: 1.1em;
+        }
+
+        .summary.correct {
+            color: green;
+        }
+
+        .summary.incorrect {
+            color: red;
+        }
+
+        .result-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .result-btn:hover {
+            background-color: #218838;
+        }
+
+        .scoreboard {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Landmark Puzzle</h1>
+    <div class="game-container">
+        <div class="landmark">
+            <img id="landmark-image" src="" alt="Landmark">
+        </div>
+        <div class="clue" id="clue"></div>
+        <div class="options" id="options"></div>
+        <div class="result" id="result"></div>
+        <button class="result-btn" id="result-btn" style="display: none;">Show Results</button>
+    </div>
+    <div class="scoreboard" id="scoreboard" style="display: none;"></div>
+    <div class="summary" id="summary" style="display: none;"></div>
+
+    <script>
+        const questions = [
+            {
+                image: "q1.avif",
+                answer: "Eiffel Tower",
+                options: ["Eiffel Tower", "Statue of Liberty", "Colosseum", "Great Wall of China"],
+                clue: "This landmark is in Paris, France."
+            },
+            {
+                image: "q3.avif",
+                answer: "Statue of Liberty",
+                options: ["Statue of Liberty", "Big Ben", "Taj Mahal", "Christ the Redeemer"],
+                clue: "This landmark is in New York, USA."
+            },
+            {
+                image: "q2.avif",
+                answer: "Taj Mahal",
+                options: ["Eiffel Tower", "Taj Mahal", "Sydney Opera House", "Machu Picchu"],
+                clue: "This landmark is in Agra, India."
+            },
+            {
+                image: "q9.avif",
+                answer: "Big Ben",
+                options: ["Colosseum", "Big Ben", "Pyramids of Giza", "Great Wall of China"],
+                clue: "This landmark is in London, UK."
+            },
+            {
+                image: "q6.avif",
+                answer: "Christ the Redeemer",
+                options: ["Christ the Redeemer", "Mount Rushmore", "Petra", "Sydney Opera House"],
+                clue: "This landmark is in Rio de Janeiro, Brazil."
+            },
+            {
+                image: "q4.avif",
+                answer: "Great Wall of China",
+                options: ["Eiffel Tower", "Great Wall of China", "Colosseum", "Taj Mahal"],
+                clue: "This landmark spans thousands of miles in China."
+            },
+            {
+                image: "q10.avif",
+                answer: "Colosseum",
+                options: ["Colosseum", "Eiffel Tower", "Statue of Liberty", "Petra"],
+                clue: "This landmark is in Rome, Italy."
+            },
+            {
+                image: "q5.avif",
+                answer: "Sydney Opera House",
+                options: ["Sydney Opera House", "Christ the Redeemer", "Mount Rushmore", "Big Ben"],
+                clue: "This landmark is in Sydney, Australia."
+            },
+            {
+                image: "q8.avif",
+                answer: "Mount Fuji",
+                options: ["Mount Fuji", "Petra", "Taj Mahal", "Great Wall of China"],
+                clue: "This landmark is Located in Japan (Asia)."
+            },
+            {
+                image: "q7.avif",
+                answer: "Pyramids of Giza",
+                options: ["Pyramids of Giza", "Christ the Redeemer", "Big Ben", "Sydney Opera House"],
+                clue: "This landmark is in Egypt."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let summary = [];
+
+        const landmarkImage = document.getElementById("landmark-image");
+        const clueElement = document.getElementById("clue");
+        const optionsContainer = document.getElementById("options");
+        const resultElement = document.getElementById("result");
+        const scoreboard = document.getElementById("scoreboard");
+        const resultButton = document.getElementById("result-btn");
+        const summaryElement = document.getElementById("summary");
+
+        function loadQuestion() {
+            const question = questions[currentQuestion];
+            landmarkImage.src = question.image;
+            clueElement.textContent = question.clue;
+
+            optionsContainer.innerHTML = "";
+            question.options.forEach(option => {
+                const button = document.createElement("div");
+                button.className = "option";
+                button.textContent = option;
+                button.addEventListener("click", () => checkAnswer(option));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedOption) {
+            const question = questions[currentQuestion];
+            const isCorrect = selectedOption === question.answer;
+            if (isCorrect) score++;
+            summary.push({ question: question.clue, selected: selectedOption, correct: isCorrect });
+
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            scoreboard.textContent = `Final Score: ${score}/10`;
+            scoreboard.style.display = "block";
+            resultButton.style.display = "block";
+        }
+
+        resultButton.addEventListener("click", () => {
+            summaryElement.innerHTML = "<h2>Summary:</h2>";
+            summary.forEach((entry, index) => {
+                const resultItem = document.createElement("div");
+                resultItem.className = entry.correct ? "summary correct" : "summary incorrect";
+                resultItem.textContent = `${index + 1}. ${entry.question} - Your Answer: ${entry.selected}`;
+                summaryElement.appendChild(resultItem);
+            });
+            summaryElement.style.display = "block";
+            resultButton.style.display = "none";
+        });
+
+        loadQuestion();
+    </script>
+</body>
+</html>

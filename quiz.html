@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CBSE Class 7 Chemistry Quiz</title>
+<style>
+body {
+    font-family: sans-serif;
+    text-align: center;
+}
+#quiz-container {
+    width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.question {
+    margin-bottom: 10px;
+}
+.options button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#result {
+    margin-top: 20px;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<h1>CBSE Class 7 Chemistry Quiz</h1>
+
+<div id="quiz-container">
+    <div id="quiz"></div>
+    <button id="submit">Submit Answers</button>
+    <div id="result"></div>
+    <div id="score">Score: 0</div>
+</div>
+
+<script>
+const quizData = [
+    {
+        question: "What is the chemical symbol for water?",
+        options: ["H2O", "CO2", "NaCl", "O2"],
+        answer: "H2O"
+    },
+    {
+        question: "Which gas is essential for burning?",
+        options: ["Nitrogen", "Carbon Dioxide", "Oxygen", "Hydrogen"],
+        answer: "Oxygen"
+    },
+    {
+        question: "What is the common name for sodium chloride (NaCl)?",
+        options: ["Sugar", "Salt", "Baking Soda", "Vinegar"],
+        answer: "Salt"
+    },
+    {
+        question: "What is the process by which water changes into vapor?",
+        options: ["Melting", "Freezing", "Evaporation", "Condensation"],
+        answer: "Evaporation"
+    },
+    {
+        question: "Which of the following is an acid?",
+        options: ["Soap", "Lemon Juice", "Baking Soda", "Water"],
+        answer: "Lemon Juice"
+    }
+];
+
+const quizDiv = document.getElementById('quiz');
+const submitButton = document.getElementById('submit');
+const resultDiv = document.getElementById('result');
+const scoreDiv = document.getElementById('score');
+let currentQuestion = 0;
+let score = 0;
+
+function loadQuestion() {
+    const questionData = quizData[currentQuestion];
+    const questionHTML = `
+        <div class="question">
+            <p>${questionData.question}</p>
+            <div class="options">
+                ${questionData.options.map(option => `<button onclick="checkAnswer('${option}')">${option}</button>`).join('')}
+            </div>
+        </div>
+    `;
+    quizDiv.innerHTML = questionHTML;
+}
+
+function checkAnswer(selectedOption) {
+    const questionData = quizData[currentQuestion];
+    if (selectedOption === questionData.answer) {
+        score += 10;
+        scoreDiv.textContent = `Score: ${score}`;
+        resultDiv.textContent = "Correct!";
+    } else {
+        resultDiv.textContent = "Incorrect.";
+    }
+    currentQuestion++;
+    if (currentQuestion < quizData.length) {
+        loadQuestion();
+    } else {
+        showFinalResult();
+    }
+}
+
+function showFinalResult() {
+    quizDiv.innerHTML = "";
+    submitButton.style.display = "none";
+    resultDiv.textContent = `Quiz completed! Your final score is ${score}.`;
+}
+
+loadQuestion();
+
+submitButton.addEventListener('click', () => {
+    // This is now redundant since the buttons call checkAnswer directly.
+    // However, if you wanted to implement a system where the user had to
+    // select all answers before submitting, you would add logic here.
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Subject Selector</title>
+  <style>
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes floatingCircles {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 20px;
+      padding: 20px;
+      line-height: 1.6;
+      background: linear-gradient(-45deg, #ffc1cc, #a3d8f4, #d4a5d8, #a8e6cf, #ffecd1);
+      background-size: 300% 300%;
+      animation: gradientAnimation 15s ease infinite;
+      color: #333;
+      position: relative;
+      overflow: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      color: indigo;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    label {
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #34495e;
+    }
+
+    select {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px;
+      margin: 10px 0;
+      border: 2px solid #2980b9;
+      border-radius: 5px;
+      background-color: #ecf0f1;
+      font-size: 1em;
+      color: #2c3e50;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+    }
+
+    select:hover {
+      background-color: #dfe6e9;
+    }
+
+    .section {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #chaptersList {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #chaptersList li {
+      margin: 10px 0;
+    }
+
+    #chaptersList li a {
+      text-decoration: none;
+      color: #3498db;
+      font-size: 1.1em;
+      font-weight: bold;
+      transition: color 0.3s ease-in-out;
+    }
+
+    #chaptersList li a:hover {
+      color: #e74c3c;
+      text-shadow: 0 1px 3px rgba(231, 76, 60, 0.6);
+    }
+
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: floatingCircles 6s ease-in-out infinite;
+    }
+
+    .circle.one {
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 193, 204, 0.5);
+      top: 10%;
+      left: 15%;
+      animation-duration: 8s;
+    }
+
+    .circle.two {
+      width: 200px;
+      height: 200px;
+      background: rgba(163, 216, 244, 0.5);
+      top: 30%;
+      right: 10%;
+      animation-duration: 10s;
+    }
+
+    .circle.three {
+      width: 100px;
+      height: 100px;
+      background: rgba(212, 165, 216, 0.5);
+      bottom: 20%;
+      left: 25%;
+      animation-duration: 12s;
+    }
+  </style>
+</head>
+<body>
+  <div class="circle one"></div>
+  <div class="circle two"></div>
+  <div class="circle three"></div>
+
+  <h1>Dynamic Subject Selector</h1>
+  
+  <div class="section">
+    <label for="board">Choose a Board:</label>
+    <select id="board" onchange="selectBoard()">
+      <option value="" disabled selected>Select Board</option>
+      <option value="CBSE">CBSE</option>
+      <option value="ICSE">ICSE</option>
+      <option value="State Board">State Board</option>
+    </select>
+  </div>
+
+  <div class="section hidden" id="resourcesSection">
+    <label for="resource">Choose a Resource:</label>
+    <select id="resource" onchange="selectResource()">
+      <option value="" disabled selected>Select Resource</option>
+      <option value="Ncert Notes">Ncert Notes</option>
+      <option value="Lecture Notes">Lecture Notes</option>
+      <option value="Question Papers">Question Papers</option>
+      <option value="Videos">Videos</option>
+      <option value="Assignments">Assignments</option>
+    </select>
+  </div>
+
+  <div class="section hidden" id="subjectsSection">
+    <label for="subject">Choose a Subject:</label>
+    <select id="subject" onchange="selectSubject()">
+      <option value="" disabled selected>Select Subject</option>
+    </select>
+  </div>
+
+  <div class="section hidden" id="chaptersSection">
+    <h3>Chapters:</h3>
+    <ul id="chaptersList"></ul>
+  </div>
+
+  <script>
+    const boardData = {
+        CBSE: {
+        Mathematics: {
+          "Ncert Notes": [
+            { name: "Algebra Notes", link: "https://example.com/cbse/math/algebra_notes" },
+            { name: "Geometry Notes", link: "https://example.com/cbse/math/geometry_notes" }
+          ],
+          "Lecture Notes": [
+            { name: "Algebra Lecture Notes", link: "https://example.com/cbse/math/algebra_lecture_notes" },
+            { name: "Geometry Lecture Notes", link: "https://example.com/cbse/math/geometry_lecture_notes" }
+          ],
+          "Question Papers": [
+            { name: "Algebra Question Paper", link: "https://example.com/cbse/math/algebra_question_paper" },
+            { name: "Geometry Question Paper", link: "https://example.com/cbse/math/geometry_question_paper" }
+          ],
+          "Videos": [
+            { name: "Algebra Video", link: "https://example.com/cbse/math/algebra_video" },
+            { name: "Geometry Video", link: "https://example.com/cbse/math/geometry_video" }
+          ],
+          "Assignments": [
+            { name: "Arithmetic Progression", link: "integer.html"}
+          ]
+        },
+        Science: {
+          "Ncert Notes": [
+            { name: "Chemical Reactions and Equations", link: "./iesc101.pdf" },
+            { name: "Acids, Bases and Salts", link: "./iesc102.pdf" },
+            { name: "Metals and Non Metals", link: "./iesc103.pdf" },
+            { name: "Carbon and its Compounds", link: "./iesc104.pdf" },
+            { name: "Life Processes", link: "./iesc106.pdf" },
+            { name: "Control and Coordination", link: "./jesc106.pdf" },
+            { name: "How do Organisms Reproduce", link: "./jesc107.pdf" },
+            { name: "Heredity and Evolution", link: "./jesc108.pdf" },
+            { name: "Light Reflection and Refraction", link: "./jesc109.pdf" },
+            { name: "Human Eye and Colourful World", link: "./jesc110.pdf" },
+            { name: "Electricity", link: "./jesc111.pdf" },
+            { name: "Magnetic Effects of Electric Current", link: "./jesc112.pdf" },
+            { name: "Our Environment", link: "./jesc113.pdf" }
+          ],
+          "Lecture Notes": [
+            { name: "Lecture Notes on Chemical Reactions", link: "https://example.com/cbse/science/chemical_reactions_lecture_notes" }
+          ],
+          "Question Papers": [
+            { name: "Science Question Paper", link: "https://example.com/cbse/science/science_question_paper" }
+          ],
+          "Videos": [
+            { name: "Chemical Reactions Video", link: "https://example.com/cbse/science/chemical_reactions_video" }
+          ],
+          "Assignments": []
+        },
+        SocialScience: {
+            "Ncert Notes": [
+                { name: "Resources and Development", link: "./jess101.pdf" },
+                { name: "Forest and Wildlife Resources", link: "./jess102.pdf" },
+                { name: "Water Resources", link: "./jess103.pdf" },
+                { name: "Agriculture", link: "./jess104.pdf" },
+                { name: "Minerals and Energy Resources", link: "./jess105.pdf" },
+                { name: "Manufacturing Industries", link: "./jess106.pdf" },
+                { name: "Lifelines of National Economy", link: "./jess107.pdf" },
+            ],
+            "Lecture Notes": [],
+            "Question Papers": [],
+            "Videos": [],
+            "Assignments": []
+        },
+        English: {
+            "Ncert Notes": [],
+            "Lecture Notes": [],
+            "Question Papers": [],
+            "Videos": [],
+            "Assignments": []
+        },
+        Hindi: {
+            "Ncert Notes": [],
+            "Lecture Notes": [],
+            "Question Papers": [],
+            "Videos": [],
+            "Assignments": []
+        },
+        Sanskrit: {
+            "Ncert Notes": [],
+            "Lecture Notes": [],
+            "Question Papers": [],
+            "Videos": [],
+            "Assignments": []
+        }
+      },
+    
+      ICSE: {
+        Mathematics: {
+          "Ncert Notes": [
+            { name: "Algebra Notes", link: "https://example.com/cbse/math/algebra_notes" },
+            { name: "Geometry Notes", link: "https://example.com/cbse/math/geometry_notes" }
+          ],
+          "Lecture Notes": [
+            { name: "Algebra Lecture Notes", link: "https://example.com/cbse/math/algebra_lecture_notes" },
+            { name: "Geometry Lecture Notes", link: "https://example.com/cbse/math/geometry_lecture_notes" }
+          ],
+          "Question Papers": [
+            { name: "Algebra Question Paper", link: "https://example.com/cbse/math/algebra_question_paper" },
+            { name: "Geometry Question Paper", link: "https://example.com/cbse/math/geometry_question_paper" }
+          ],
+          "Videos": [
+            { name: "Algebra Video", link: "https://example.com/cbse/math/algebra_video" },
+            { name: "Geometry Video", link: "https://example.com/cbse/math/geometry_video" }
+          ],
+          "Assignments": [
+            { name: "Arithmetic Progression", link: "integer.html"}
+          ]
+        },
+        Science: {
+          "Ncert Notes": [
+            { name: "Chemical Reactions and Equations", link: "./iesc101.pdf" },
+            { name: "Acids, Bases and Salts", link: "./iesc102.pdf" },
+            { name: "Metals and Non Metals", link: "./iesc103.pdf" },
+            { name: "Carbon and its Compounds", link: "./iesc104.pdf" },
+            { name: "Life Processes", link: "./iesc106.pdf" },
+            { name: "Control and Coordination", link: "./jesc106.pdf" },
+            { name: "How do Organisms Reproduce", link: "./jesc107.pdf" },
+            { name: "Heredity and Evolution", link: "./jesc108.pdf" },
+            { name: "Light Reflection and Refraction", link: "./jesc109.pdf" },
+            { name: "Human Eye and Colourful World", link: "./jesc110.pdf" },
+            { name: "Electricity", link: "./jesc111.pdf" },
+            { name: "Magnetic Effects of Electric Current", link: "./jesc112.pdf" },
+            { name: "Our Environment", link: "./jesc113.pdf" }
+          ],
+          "Lecture Notes": [
+            { name: "Lecture Notes on Chemical Reactions", link: "https://example.com/cbse/science/chemical_reactions_lecture_notes" }
+          ],
+          "Question Papers": [
+            { name: "Science Question Paper", link: "https://example.com/cbse/science/science_question_paper" }
+          ],
+          "Videos": [
+            { name: "Chemical Reactions Video", link: "https://example.com/cbse/science/chemical_reactions_video" }
+          ],
+          "Assignments": []
+        },
+        SocialScience: {
+            "Ncert Notes": [
+                { name: "Resources and Development", link: "./jess101.pdf" },
+                { name: "Forest and Wildlife Resources", link: "./jess102.pdf" },
+                { name: "Water Resources", link: "./jess103.pdf" },
+                { name: "Agriculture", link: "./jess104.pdf" },
+                { name: "Minerals and Energy Resources", link: "./jess105.pdf" },
+                { name: "Manufacturing Industries", link: "./jess106.pdf" },
+                { name: "Lifelines of National Economy", link: "./jess107.pdf" },
+            ],
+            "Lecture Notes": [],
+            "Question Papers": [],
+            "Videos": [],
+            "Assignments": []
+        },
+        English: {
+            "Ncert Notes": [],
+            "Lecture Notes": [],
+            "Question Papers": [],
+            "Videos": [],
+            "Assignments": []
+        },
+        Hindi: {
+            "Ncert Notes": [],
+            "Lecture Notes": [],
+            "Question Papers": [],
+            "Videos": [],
+            "Assignments": []
+        },
+        Sanskrit: {
+            "Ncert Notes": [],
+            "Lecture Notes": [],
+            "Question Papers": [],
+            "Videos": [],
+            "Assignments": []
+        }
+    }
+
+    };
+
+    function selectBoard() {
+      document.getElementById("resourcesSection").classList.remove("hidden");
+      document.getElementById("subjectsSection").classList.add("hidden");
+      document.getElementById("chaptersSection").classList.add("hidden");
+    }
+
+    function selectResource() {
+      const resource = document.getElementById("resource").value;
+      const board = document.getElementById("board").value;
+      const subjectsSection = document.getElementById("subjectsSection");
+      const subjectSelect = document.getElementById("subject");
+      subjectSelect.innerHTML = '<option value="" disabled selected>Select Subject</option>';
+      
+      const subjects = Object.keys(boardData[board]);
+      subjects.forEach(subject => {
+        const option = document.createElement("option");
+        option.value = subject;
+        option.textContent = subject;
+        subjectSelect.appendChild(option);
+      });
+      
+      subjectsSection.classList.remove("hidden");
+      document.getElementById("chaptersSection").classList.add("hidden");
+    }
+
+    function selectSubject() {
+      const board = document.getElementById("board").value;
+      const resource = document.getElementById("resource").value;
+      const subject = document.getElementById("subject").value;
+      const chaptersSection = document.getElementById("chaptersSection");
+      const chaptersList = document.getElementById("chaptersList");
+      chaptersList.innerHTML = '';
+
+      const chapters = boardData[board][subject][resource];
+
+      if (chapters && chapters.length > 0) {
+        chapters.forEach(chapter => {
+          const listItem = document.createElement("li");
+          const link = document.createElement("a");
+          link.href = chapter.link;
+          link.textContent = chapter.name;
+          link.target = "_blank";
+          listItem.appendChild(link);
+          chaptersList.appendChild(listItem);
+        });
+        chaptersSection.classList.remove("hidden");
+      } else {
+        chaptersSection.classList.add("hidden");
+      }
+    }
+  </script>
+</body>
+</html>

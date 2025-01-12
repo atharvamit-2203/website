@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Subject Selector</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: orange;
+      color: #333;
+      margin: 20px;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      text-align: center;
+      color: navy;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    label {
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #34495e;
+    }
+
+    select {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px;
+      margin: 10px 0;
+      border: 2px solid #2980b9;
+      border-radius: 5px;
+      background-color: #ecf0f1;
+      font-size: 1em;
+      color: #2c3e50;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+    }
+
+    select:hover {
+      background-color: #dfe6e9;
+    }
+
+    .section {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #chaptersList {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #chaptersList li {
+      margin: 10px 0;
+    }
+
+    #chaptersList li a {
+      text-decoration: none;
+      color: #3498db;
+      font-size: 1.1em;
+      font-weight: bold;
+      transition: color 0.3s ease-in-out;
+    }
+
+    #chaptersList li a:hover {
+      color: #e74c3c;
+      text-shadow: 0 1px 3px rgba(231, 76, 60, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <h1>Dynamic Subject Selector</h1>
+  
+  <div class="section">
+    <label for="board">Choose a Board:</label>
+    <select id="board">
+      <option value="" disabled selected>Select Board</option>
+      <option value="CBSE">CBSE</option>
+      <option value="ISC">ISC</option>
+      <option value="State Board">State Board</option>
+    </select>
+  </div>
+
+  <div class="section hidden" id="resourcesSection">
+    <label for="resource">Choose a Resource:</label>
+    <select id="resource">
+      <option value="" disabled selected>Select Resource</option>
+      <option value="Ncert Notes">Ncert Notes</option>
+      <option value="Lecture Notes">Lecture Notes</option>
+      <option value="Question Papers">Question Papers</option>
+      <option value="Videos">Videos</option>
+    </select>
+  </div>
+
+  <div class="section hidden" id="subjectsSection">
+    <label for="subject">Choose a Subject:</label>
+    <select id="subject">
+      <option value="" disabled selected>Select Subject</option>
+    </select>
+  </div>
+
+  <div class="section hidden" id="chaptersSection">
+    <h3>Chapters:</h3>
+    <ul id="chaptersList"></ul>
+  </div>
+
+  <script>
+    const boardData = {
+      CBSE: {
+        Mathematics: {
+          "Ncert Notes": [
+            { name: "Algebra Notes", link: "https://example.com/cbse/math/algebra_notes" },
+            { name: "Geometry Notes", link: "https://example.com/cbse/math/geometry_notes" }
+          ],
+          "Lecture Notes": [
+            { name: "Algebra Lecture Notes", link: "https://example.com/cbse/math/algebra_lecture_notes" },
+            { name: "Geometry Lecture Notes", link: "https://example.com/cbse/math/geometry_lecture_notes" }
+          ],
+          "Question Papers": [
+            { name: "Algebra Question Paper", link: "https://example.com/cbse/math/algebra_question_paper" },
+            { name: "Geometry Question Paper", link: "https://example.com/cbse/math/geometry_question_paper" }
+          ],
+          "Videos": [
+            { name: "Algebra Video", link: "https://example.com/cbse/math/algebra_video" },
+            { name: "Geometry Video", link: "https://example.com/cbse/math/geometry_video" }
+          ]
+        },
+        Science: {
+          "Ncert Notes": [
+            { name: "Chemical Reactions and Equations", link: "./jesc101.pdf" },
+            { name: "Acids, Bases and Salts", link: "./jesc102.pdf" },
+            { name: "Metals and Non Metals", link: "./jesc103.pdf" }
+          ],
+          "Lecture Notes": [
+            { name: "Lecture Notes on Chemical Reactions", link: "https://example.com/cbse/science/chemical_reactions_lecture_notes" }
+          ],
+          "Question Papers": [
+            { name: "Science Question Paper", link: "https://example.com/cbse/science/science_question_paper" }
+          ],
+          "Videos": [
+            { name: "Chemical Reactions Video", link: "https://example.com/cbse/science/chemical_reactions_video" }
+          ]
+        },
+        SocialScience: {
+          "Ncert Notes": [
+            { name: "Resources and Development", link: "./jess101.pdf" },
+            { name: "Forest and Wildlife Resources", link: "./jess102.pdf" }
+          ],
+          "Lecture Notes": [],
+          "Question Papers": [],
+          "Videos": []
+        }
+      }
+    };
+
+    const boardSelect = document.getElementById('board');
+    const resourceSelect = document.getElementById('resource');
+    const subjectSelect = document.getElementById('subject');
+    const resourcesSection = document.getElementById('resourcesSection');
+    const subjectsSection = document.getElementById('subjectsSection');
+    const chaptersSection = document.getElementById('chaptersSection');
+    const chaptersList = document.getElementById('chaptersList');
+
+    boardSelect.addEventListener('change', handleBoardChange);
+    resourceSelect.addEventListener('change', handleResourceChange);
+    subjectSelect.addEventListener('change', handleSubjectChange);
+
+    function handleBoardChange() {
+      const selectedBoard = boardSelect.value;
+      if (selectedBoard) {
+        resourcesSection.classList.remove('hidden');
+        resourceSelect.value = '';
+        subjectSelect.innerHTML = '<option value="" disabled selected>Select Subject</option>';
+        chaptersList.innerHTML = '';
+        subjectsSection.classList.add('hidden');
+        chaptersSection.classList.add('hidden');
+      }
+    }
+
+    function handleResourceChange() {
+      const selectedBoard = boardSelect.value;
+      const selectedResource = resourceSelect.value;
+      
+      if (selectedBoard && selectedResource) {
+        // Populate subjects
+        subjectSelect.innerHTML = '<option value="" disabled selected>Select Subject</option>';
+        const subjects = Object.keys(boardData[selectedBoard]);
+        
+        subjects.forEach(subject => {
+          const option = document.createElement('option');
+          option.value = subject;
+          option.textContent = subject;
+          subjectSelect.appendChild(option);
+        });
+        
+        subjectsSection.classList.remove('hidden');
+        chaptersSection.classList.add('hidden');
+      }
+    }
+
+    function handleSubjectChange() {
+      const selectedBoard = boardSelect.value;
+      const selectedResource = resourceSelect.value;
+      const selectedSubject = subjectSelect.value;
+      
+      if (selectedBoard && selectedResource && selectedSubject) {
+        chaptersList.innerHTML = '';
+        const chapters = boardData[selectedBoard][selectedSubject][selectedResource];
+        
+        if (chapters && chapters.length > 0) {
+          chapters.forEach(chapter => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = chapter.link;
+            a.textContent = chapter.name;
+            a.target = "_blank";
+            li.appendChild(a);
+            chaptersList.appendChild(li);
+          });
+          chaptersSection.classList.remove('hidden');
+        } else {
+          const li = document.createElement('li');
+          li.textContent = 'No chapters available';
+          chaptersList.appendChild(li);
+          chaptersSection.classList.remove('hidden');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

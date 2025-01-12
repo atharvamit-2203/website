@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Subject Selector</title>
+  <style>
+    body {
+  font-family: 'Arial', sans-serif;
+  background-color: orange;
+  color: #333;
+  margin: 20px;
+  padding: 20px;
+  line-height: 1.6;
+}
+
+h1 {
+  text-align: center;
+  color: navy;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+label {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #34495e;
+}
+
+select {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  margin: 10px 0;
+  border: 2px solid #2980b9;
+  border-radius: 5px;
+  background-color: #ecf0f1;
+  font-size: 1em;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+select:hover {
+  background-color: #dfe6e9;
+}
+
+.section {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hidden {
+  display: none;
+}
+
+#chaptersList {
+  list-style-type: none;
+  padding: 0;
+}
+
+#chaptersList li {
+  margin: 10px 0;
+}
+
+#chaptersList li a {
+  text-decoration: none;
+  color: #3498db;
+  font-size: 1.1em;
+  font-weight: bold;
+  transition: color 0.3s ease-in-out;
+}
+
+#chaptersList li a:hover {
+  color: #e74c3c;
+  text-shadow: 0 1px 3px rgba(231, 76, 60, 0.6);
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #27ae60;
+  color: #fff;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+button:hover {
+  background-color: #2ecc71;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(39, 174, 96, 0.5);
+}
+
+  </style>
+</head>
+<body>
+  <h1>Dynamic Subject Selector</h1>
+  <div class="section">
+    <label for="board">Choose a Board:</label>
+    <select id="board" onchange="selectBoard()">
+      <option value="" disabled selected>Select Board</option>
+      <option value="CBSE">CBSE</option>
+      <option value="ISC">ISC</option>
+      <option value="State Board">State Board</option>
+    </select>
+  </div>
+
+  <div class="section hidden" id="resourcesSection">
+    <label for="resource">Choose a Resource:</label>
+    <select id="resource" onchange="selectResource()">
+      <option value="" disabled selected>Select Resource</option>
+      <option value="Our Notes">Our Notes</option>
+      <option value="Lectures">Lectures</option>
+      <option value="Videos">Videos</option>
+    </select>
+  </div>
+
+  <div class="section hidden" id="subjectsSection">
+    <label for="subject">Choose a Subject:</label>
+    <select id="subject" onchange="selectSubject()">
+      <option value="" disabled selected>Select Subject</option>
+    </select>
+  </div>
+
+  <div class="section hidden" id="chaptersSection">
+    <h3>Chapters:</h3>
+    <ul id="chaptersList"></ul>
+  </div>
+
+  <script>
+    const boardData = {
+      CBSE: {
+        "Mathematics": [
+          { name: "Algebra", link: "https://example.com/cbse/math/algebra" },
+          { name: "Geometry", link: "https://example.com/cbse/math/geometry" },
+          { name: "Trigonometry", link: "https://example.com/cbse/math/trigonometry" },
+          { name: "Calculus", link: "https://example.com/cbse/math/calculus" }
+        ],
+        "Physics": [
+          { name: "Mechanics", link: "https://example.com/cbse/physics/mechanics" },
+          { name: "Optics", link: "https://example.com/cbse/physics/optics" },
+          { name: "Thermodynamics", link: "https://example.com/cbse/physics/thermodynamics" }
+        ],
+        "Chemistry": [
+          { name: "Organic Chemistry", link: "https://example.com/cbse/chemistry/organic" },
+          { name: "Inorganic Chemistry", link: "https://example.com/cbse/chemistry/inorganic" }
+        ]
+      },
+      ISC: {
+        "Physics": [
+          { name: "Mechanics", link: "https://example.com/isc/physics/mechanics" },
+          { name: "Optics", link: "https://example.com/isc/physics/optics" },
+          { name: "Thermodynamics", link: "https://example.com/isc/physics/thermodynamics" }
+        ],
+        "Mathematics": [
+          { name: "Algebra", link: "https://example.com/isc/math/algebra" },
+          { name: "Geometry", link: "https://example.com/isc/math/geometry" },
+          { name: "Statistics", link: "https://example.com/isc/math/statistics" }
+        ],
+        "Biology": [
+          { name: "Genetics", link: "https://example.com/isc/biology/genetics" },
+          { name: "Cell Biology", link: "https://example.com/isc/biology/cell" }
+        ]
+      },
+      "State Board": {
+        "Physics": [
+          { name: "Mechanics", link: "https://example.com/stateboard/physics/mechanics" },
+          { name: "Optics", link: "https://example.com/stateboard/physics/optics" }
+        ],
+        "Chemistry": [
+          { name: "Organic Chemistry", link: "https://example.com/stateboard/chemistry/organic" },
+          { name: "Inorganic Chemistry", link: "https://example.com/stateboard/chemistry/inorganic" }
+        ],
+        "History": [
+          { name: "Ancient History", link: "https://example.com/stateboard/history/ancient" },
+          { name: "Modern History", link: "https://example.com/stateboard/history/modern" }
+        ]
+      }
+    };
+
+    function selectBoard() {
+      const resourcesSection = document.getElementById("resourcesSection");
+      resourcesSection.classList.remove("hidden");
+    }
+
+    function selectResource() {
+      const subjectsSection = document.getElementById("subjectsSection");
+      const subjectSelect = document.getElementById("subject");
+      subjectSelect.innerHTML = '<option value="" disabled selected>Select Subject</option>';
+
+      const board = document.getElementById("board").value;
+      const subjects = Object.keys(boardData[board]);
+      subjects.forEach(subject => {
+        const option = document.createElement("option");
+        option.value = subject;
+        option.textContent = subject;
+        subjectSelect.appendChild(option);
+      });
+
+      subjectsSection.classList.remove("hidden");
+    }
+
+    function selectSubject() {
+      const chaptersSection = document.getElementById("chaptersSection");
+      const chaptersList = document.getElementById("chaptersList");
+      chaptersList.innerHTML = '';
+
+      const board = document.getElementById("board").value;
+      const subject = document.getElementById("subject").value;
+      const chapters = boardData[board][subject];
+
+      chapters.forEach(chapter => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = chapter.link;
+        a.textContent = chapter.name;
+        a.target = "_blank";
+        li.appendChild(a);
+        chaptersList.appendChild(li);
+      });
+
+      chaptersSection.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>

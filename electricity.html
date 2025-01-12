@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .quiz-container {
+            width: 90%;
+            max-width: 700px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            text-align: center;
+        }
+        h1 {
+            background-color: #4CAF50;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .question-container {
+            padding: 20px;
+            display: none;
+        }
+        .question-container.active {
+            display: block;
+        }
+        label {
+            font-size: 1.2em;
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="radio"],
+        input[type="number"] {
+            margin: 10px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #timer {
+            font-size: 1.5em;
+            color: red;
+            margin: 10px 0;
+        }
+        #scoreboard, #result-summary {
+            font-size: 1.5em;
+            color: #333;
+            padding: 20px;
+        }
+        #result-summary {
+            display: none;
+            text-align: left;
+        }
+        .correct {
+            background-color: #d4edda;
+        }
+        .incorrect {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Physics Quiz</h1>
+        <div id="timer">Time left: <span id="time-left">30</span> seconds</div>
+        <div id="questions">
+            <!-- Questions -->
+            <div class="question-container active">
+                <label>1. The unit of electric current is:</label>
+                <input type="radio" name="q1" value="a"> (a) Ampere<br>
+                <input type="radio" name="q1" value="b"> (b) Coulomb<br>
+                <input type="radio" name="q1" value="c"> (c) Volt<br>
+                <input type="radio" name="q1" value="d"> (d) Ohm<br>
+            </div>
+            <div class="question-container">
+                <label>2. Which device is used to maintain a potential difference across the ends of a conductor?</label>
+                <input type="radio" name="q2" value="a"> (a) Ammeter<br>
+                <input type="radio" name="q2" value="b"> (b) Voltmeter<br>
+                <input type="radio" name="q2" value="c"> (c) Cell or battery<br>
+                <input type="radio" name="q2" value="d"> (d) Galvanometer<br>
+            </div>
+            <div class="question-container">
+                <label>3. True or False: Sound cannot travel through a vacuum.</label>
+                <input type="radio" name="q3" value="true"> True<br>
+                <input type="radio" name="q3" value="false"> False<br>
+            </div>
+            <div class="question-container">
+                <label>4. What is the acceleration due to gravity on Earth (in m/s²)?</label>
+                <input type="number" name="q4">
+            </div>
+            <div class="question-container">
+                <label>5. The frequency of a wave is measured in:</label>
+                <input type="radio" name="q5" value="a"> (a) Hertz<br>
+                <input type="radio" name="q5" value="b"> (b) Meter<br>
+                <input type="radio" name="q5" value="c"> (c) Second<br>
+                <input type="radio" name="q5" value="d"> (d) Joule<br>
+            </div>
+            <div class="question-container">
+                <label>6. A car travels 60 km in 2 hours. What is its average speed (in km/h)?</label>
+                <input type="number" name="q6">
+            </div>
+            <div class="question-container">
+                <label>7. True or False: The boiling point of water decreases as altitude increases.</label>
+                <input type="radio" name="q7" value="true"> True<br>
+                <input type="radio" name="q7" value="false"> False<br>
+            </div>
+            <div class="question-container">
+                <label>8. A convex lens is also known as:</label>
+                <input type="radio" name="q8" value="a"> (a) Converging lens<br>
+                <input type="radio" name="q8" value="b"> (b) Diverging lens<br>
+                <input type="radio" name="q8" value="c"> (c) Bifocal lens<br>
+                <input type="radio" name="q8" value="d"> (d) Cylindrical lens<br>
+            </div>
+            <div class="question-container">
+                <label>9. What is the formula for calculating resistance in an electric circuit?</label>
+                <input type="radio" name="q9" value="a"> (a) V = IR<br>
+                <input type="radio" name="q9" value="b"> (b) R = VI<br>
+                <input type="radio" name="q9" value="c"> (c) R = V/I<br>
+                <input type="radio" name="q9" value="d"> (d) R = I/V<br>
+            </div>
+            <div class="question-container">
+                <label>10. If a current of 5 A flows for 10 seconds, how much charge passes through the circuit (in Coulombs)?</label>
+                <input type="number" name="q10">
+            </div>
+            <div class="question-container">
+                <label>11. True or False: Light travels faster in air than in water.</label>
+                <input type="radio" name="q11" value="true"> True<br>
+                <input type="radio" name="q11" value="false"> False<br>
+            </div>
+            <div class="question-container">
+                <label>12. What is the SI unit of work?</label>
+                <input type="radio" name="q12" value="a"> (a) Joule<br>
+                <input type="radio" name="q12" value="b"> (b) Newton<br>
+                <input type="radio" name="q12" value="c"> (c) Watt<br>
+                <input type="radio" name="q12" value="d"> (d) Pascal<br>
+            </div>
+            <div class="question-container">
+                <label>13. What is the formula for kinetic energy?</label>
+                <input type="radio" name="q13" value="a"> (a) KE = mv<br>
+                <input type="radio" name="q13" value="b"> (b) KE = 1/2mv²<br>
+                <input type="radio" name="q13" value="c"> (c) KE = 1/2mv<br>
+                <input type="radio" name="q13" value="d"> (d) KE = mv²<br>
+            </div>
+            <div class="question-container">
+                <label>14. What is the power of a machine that does 1000 J of work in 5 seconds (in Watts)?</label>
+                <input type="number" name="q14">
+            </div>
+            <div class="question-container">
+                <label>15. True or False: A magnet has both north and south poles.</label>
+                <input type="radio" name="q15" value="true"> True<br>
+                <input type="radio" name="q15" value="false"> False<br>
+            </div>            
+
+        </div>
+        <button id="prev-btn" onclick="previousQuestion()">Previous</button>
+        <button id="next-btn" onclick="nextQuestion()">Next</button>
+        <div id="scoreboard" style="display: none;">Your score: <span id="score"></span></div>
+        <button id="result-btn" style="display: none;" onclick="showResults()">Summary of Results</button>
+        <div id="result-summary"></div>
+    </div>
+    <script>
+        const answers = [
+            'a', 'c', 'true', '9.8', 'a',
+            '30', 'true', 'a', 'c', '50',
+            'true', 'a', 'b', '200', 'true'
+        ];
+        let currentQuestion = 0;
+        let score = 0;
+        let timer;
+        let timeLeft;
+
+        function startTimer() {
+            timeLeft = 30;
+            document.getElementById("time-left").textContent = timeLeft;
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("time-left").textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function nextQuestion() {
+            const questionContainers = document.querySelectorAll(".question-container");
+            const userAnswer = document.querySelector(
+                `input[name="q${currentQuestion + 1}"]:checked, input[name="q${currentQuestion + 1}"]`
+            );
+            if (userAnswer && userAnswer.value == answers[currentQuestion]) {
+                score++;
+            }
+            questionContainers[currentQuestion].classList.remove("active");
+            currentQuestion++;
+            if (currentQuestion < questionContainers.length) {
+                questionContainers[currentQuestion].classList.add("active");
+                startTimer();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            const questionContainers = document.querySelectorAll(".question-container");
+            if (currentQuestion > 0) {
+                questionContainers[currentQuestion].classList.remove("active");
+                currentQuestion--;
+                questionContainers[currentQuestion].classList.add("active");
+                startTimer();
+            }
+        }
+
+        function endQuiz() {
+            clearInterval(timer);
+            document.querySelector("#questions").style.display = "none";
+            document.querySelector("#timer").style.display = "none";
+            document.querySelector("#scoreboard").style.display = "block";
+            document.querySelector("#score").textContent = `${score} / ${answers.length}`;
+            document.querySelector("#result-btn").style.display = "block";
+            document.querySelector("#prev-btn").style.display = "none";
+            document.querySelector("#next-btn").style.display = "none";
+        }
+
+        function showResults() {
+    const questionContainers = document.querySelectorAll(".question-container");
+    const resultSummary = document.querySelector("#result-summary");
+    resultSummary.innerHTML = ""; // Clear previous results
+
+    // Iterate through all 15 questions
+    answers.forEach((answer, index) => {
+        const questionNumber = index + 1; // Question numbers start from 1
+        const questionContainer = questionContainers[index];
+        const questionLabel = questionContainer.querySelector("label").innerText;
+
+        // Get user's answer
+        const userAnswerElement = document.querySelector(
+            `input[name="q${questionNumber}"]:checked, input[name="q${questionNumber}"]`
+        );
+        let userAnswer = userAnswerElement
+            ? userAnswerElement.value.trim()
+            : "No Answer"; // Default to "No Answer" if nothing is selected
+
+        const isCorrect = userAnswer === answer; // Check correctness
+
+        // Create the result entry for this question
+        const result = document.createElement("div");
+        result.className = isCorrect ? "correct" : "incorrect";
+
+        result.innerHTML = `
+            <p><strong>Question ${questionNumber}:</strong> ${questionLabel}</p>
+            <p><strong>Your Answer:</strong> ${userAnswer}</p>
+            <p><strong>Correct Answer:</strong> ${answer}</p>
+        `;
+
+        // Add the result to the result summary container
+        resultSummary.appendChild(result);
+    });
+
+    // Make sure the summary is visible
+    resultSummary.style.display = "block"; // Ensure result-summary is displayed
+}
+
+
+
+        startTimer();
+    </script>
+</body>
+</html>

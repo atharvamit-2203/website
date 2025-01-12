@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment with Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .quiz-container {
+            width: 80%;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .question-container {
+            padding: 20px;
+            display: none;
+        }
+        .question-container.active {
+            display: block;
+        }
+        h1 {
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        label {
+            display: block;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        input, select {
+            font-size: 1em;
+            padding: 5px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #timer {
+            text-align: center;
+            font-size: 1.2em;
+            color: #ff0000;
+            margin-bottom: 10px;
+        }
+        #result {
+            text-align: center;
+            font-size: 1.5em;
+            color: #333;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Quiz Challenge</h1>
+        <div id="timer">Time left: <span id="time-left">10</span> seconds</div>
+
+        <div id="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        const questions = [
+            { type: 'integer', question: "1. Use Euclid's Division Algorithm to find the HCF of 135 and 225", answer: 15, time: 45 },
+            { type: 'integer', question: "2. Find the 10th term of the AP: 2, 7, 12, . .", answer: 47, time: 45 },
+            { type: 'integer', question: "3. Which term of the AP: 21, 18, 15, . . . is -81?", answer: 35, time: 45 },
+            { type: 'integer', question: "4. A sum of ₹1000 is invested at 8% simple interest per year. Calculate the interest at the end of each year.", answer: 2400, time: 45 },
+            { type: 'integer', question: "5. In a flower bed, there are 23 rose plants in the first row, 21 in the second. How many rows are there if the last row has 5 plants?", answer: 10, time: 45 },
+            
+           
+            { type: 'mcq', question: "6. In the series: 2, 5, 8, 11, 14, . . . , find the 7th term", options: ['25', '20', '35'], answer: 25, time: 25 },
+            { type: 'mcq', question: "7. The HCF of 12 and 15 is:", options: ['3', '6', '12'], answer: 3, time: 25 },
+            { type: 'mcq', question: "8. Find the 5th term of the AP: 1, 4, 7, ...", options: ['13', '15', '11'], answer: 13, time: 25 },
+            { type: 'mcq', question: "9. How many terms are in the series: 2, 4, 6, ..., 20?", options: ['9', '10', '11'], answer: 10, time: 25 },
+            { type: 'mcq', question: "10. What is the 4th prime number?", options: ['7', '11', '13'], answer: 7, time: 25 },
+            
+            { type: 'truefalse', question: "11. 5, 6, 7, 9, 15, . . . , is an Arithematic progression", answer: false, time: 30 },
+            { type: 'truefalse', question: "12. For any arithmetic progression, when a fixed number is added or subtracted to each term, the resulting sequence still remains an A.P. with the common difference remaining unchanged.", answer: true, time: 30 },
+            { type: 'truefalse', question: "13. 21 is the fourth term of 6, 12, 18, . . .", answer: false, time: 30 },
+            { type: 'truefalse', question: "14. A series containing zero cannot be an arithematic progression.", answer: false, time: 30 },
+            { type: 'truefalse', question: "15. 5, 5, 5, 5, 5 is an arithematic progression.", answer: true, time: 30 }
+        ];
+
+        let score = 0;
+        let currentQuestionIndex = 0;
+        let timer;
+        let timeLeft;
+
+        function startTimer(duration) {
+            timeLeft = duration;
+            document.getElementById("time-left").textContent = timeLeft;
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("time-left").textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    goToNextQuestion();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const quizContainer = document.querySelector('.quiz-container');
+            const questionData = questions[currentQuestionIndex];
+            quizContainer.innerHTML = `
+                <h1>Quiz Challenge</h1>
+                <div id="timer">Time left: <span id="time-left">${questionData.time}</span> seconds</div>
+            `;
+
+            let questionHtml = `<div class="question-container active"><label>${questionData.question}</label>`;
+
+            if (questionData.type === 'integer') {
+                questionHtml += `<input type="number" id="answer" required>`;
+            } else if (questionData.type === 'mcq') {
+                questionHtml += questionData.options.map((option, index) => `
+                    <label>
+                        <input type="radio" name="answer" value="${option}"> ${option}
+                    </label>
+                `).join('');
+            } else if (questionData.type === 'truefalse') {
+                questionHtml += `
+                    <label><input type="radio" name="answer" value="true"> True</label>
+                    <label><input type="radio" name="answer" value="false"> False</label>
+                `;
+            }
+
+            questionHtml += `<button onclick="submitAnswer()">Submit</button></div>`;
+            quizContainer.innerHTML += questionHtml;
+
+            startTimer(questionData.time);
+        }
+
+        function submitAnswer() {
+            const questionData = questions[currentQuestionIndex];
+            let userAnswer;
+
+            if (questionData.type === 'integer') {
+                userAnswer = parseInt(document.getElementById('answer').value);
+            } else if (questionData.type === 'mcq' || questionData.type === 'truefalse') {
+                const selectedOption = document.querySelector('input[name="answer"]:checked');
+                if (selectedOption) {
+                    userAnswer = questionData.type === 'truefalse' ? (selectedOption.value === 'true') : parseInt(selectedOption.value);
+                }
+            }
+
+            clearInterval(timer);
+
+            if (userAnswer === questionData.answer) {
+                score++;
+            }
+
+            goToNextQuestion();
+        }
+
+        function goToNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            const quizContainer = document.querySelector('.quiz-container');
+            quizContainer.innerHTML = `
+                <h1>Quiz Challenge</h1>
+                <div id="result">Your total score is: ${score} out of ${questions.length}</div>
+            `;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

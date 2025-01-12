@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #d9f3f7; /* pastel blue */
+            color: #2f4f4f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background-color: #e0f7e9; /* pastel green */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 50%;
+        }
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .options {
+            margin-bottom: 20px;
+        }
+        .options button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #7dd3c4; /* pastel button */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .options button:hover {
+            background-color: #63c3ac;
+        }
+        .timer {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .result {
+            font-size: 1.5rem;
+            margin-top: 20px;
+        }
+        .result.success {
+            color: green;
+        }
+        .result.fail {
+            color: orange;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="question" class="question"></div>
+        <div id="options" class="options"></div>
+        <div id="timer" class="timer"></div>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const questions = [
+            // MCQs
+            { type: "mcq", question: "The area of a parallelogram is calculated using the formula:", options: ["Base × Height", "1/2 × Base × Height", "Base × Perpendicular Height", "Both a and c"], answer: "Both a and c", clarification: "The correct formula is Base × Height or Base × Perpendicular Height." },
+            { type: "mcq", question: "What is the area of a triangle with base 10 cm and height 6 cm?", options: ["30 cm²", "60 cm²", "45 cm²", "20 cm²"], answer: "30 cm²", clarification: "The formula is 1/2 × Base × Height, so 1/2 × 10 × 6 = 30 cm²." },
+            { type: "mcq", question: "Which quadrilateral has equal diagonals that bisect each other?", options: ["Rectangle", "Parallelogram", "Rhombus", "Trapezium"], answer: "Rectangle", clarification: "A rectangle has equal diagonals that bisect each other." },
+            { type: "mcq", question: "The area of a rhombus is given by:", options: ["1/2 × Product of Diagonals", "Base × Height", "1/3 × Product of Diagonals", "None of these"], answer: "1/2 × Product of Diagonals", clarification: "The correct formula is 1/2 × Product of Diagonals." },
+            { type: "mcq", question: "What is the unit of area?", options: ["cm", "cm²", "cm³", "m"], answer: "cm²", clarification: "Area is measured in square units such as cm²." },
+
+            // True/False
+            { type: "true_false", question: "The area of a rectangle is the same as that of a parallelogram with the same base and height.", answer: true, clarification: "This is true because both share the same area formula: Base × Height." },
+            { type: "true_false", question: "The diagonals of a parallelogram are always equal.", answer: false, clarification: "This is false. Only rectangles (a type of parallelogram) have equal diagonals." },
+            { type: "true_false", question: "The area of a triangle can be calculated using Heron's formula.", answer: true, clarification: "This is true. Heron's formula is used when all three sides are known." },
+            { type: "true_false", question: "The area of a trapezium is (1/2) × height × (sum of parallel sides).", answer: true, clarification: "This is correct and is the formula for the area of a trapezium." },
+            { type: "true_false", question: "A square and a rectangle always have the same area.", answer: false, clarification: "This is false. Their areas depend on the dimensions." },
+
+            // Numerical
+            { type: "numerical", question: "Find the area of a parallelogram with base = 12 cm and height = 8 cm.", answer: 96, clarification: "The area is Base × Height = 12 × 8 = 96 cm²." },
+            { type: "numerical", question: "Find the area of a triangle with base = 15 cm and height = 10 cm.", answer: 75, clarification: "The area is 1/2 × Base × Height = 1/2 × 15 × 10 = 75 cm²." },
+            { type: "numerical", question: "A rhombus has diagonals of length 10 cm and 8 cm. Find its area.", answer: 40, clarification: "The area is 1/2 × Product of Diagonals = 1/2 × 10 × 8 = 40 cm²." },
+            { type: "numerical", question: "Find the area of a trapezium with height = 5 cm and parallel sides of 6 cm and 8 cm.", answer: 35, clarification: "The area is 1/2 × Height × (Sum of Parallel Sides) = 1/2 × 5 × (6 + 8) = 35 cm²." },
+            { type: "numerical", question: "Calculate the area of a rectangle with length = 9 cm and breadth = 4 cm.", answer: 36, clarification: "The area is Length × Breadth = 9 × 4 = 36 cm²." },
+        ];
+
+        let currentQuestionIndex = 0;
+        let timerInterval;
+        let timeLeft;
+
+        function startQuiz() {
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const questionData = questions[currentQuestionIndex];
+            document.getElementById("result").innerText = "";
+
+            if (questionData.type === "mcq") {
+                timeLeft = 30;
+                showMCQ(questionData);
+            } else if (questionData.type === "true_false") {
+                timeLeft = 30;
+                showTrueFalse(questionData);
+            } else if (questionData.type === "numerical") {
+                timeLeft = 45;
+                showNumerical(questionData);
+            }
+
+            startTimer();
+        }
+
+        function showMCQ(questionData) {
+            document.getElementById("question").innerText = questionData.question;
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+
+            questionData.options.forEach(option => {
+                const button = document.createElement("button");
+                button.innerText = option;
+                button.onclick = () => checkAnswer(option);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function showTrueFalse(questionData) {
+            document.getElementById("question").innerText = questionData.question;
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+
+            ["True", "False"].forEach(option => {
+                const button = document.createElement("button");
+                button.innerText = option;
+                button.onclick = () => checkAnswer(option === "True");
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function showNumerical(questionData) {
+            document.getElementById("question").innerText = questionData.question;
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "<input type='number' id='numericalAnswer' placeholder='Enter your answer'>";
+
+            const button = document.createElement("button");
+            button.innerText = "Submit";
+            button.onclick = () => {
+                const userAnswer = parseInt(document.getElementById("numericalAnswer").value);
+                checkAnswer(userAnswer);
+            };
+            optionsContainer.appendChild(button);
+        }
+
+        function startTimer() {
+            const timerElement = document.getElementById("timer");
+            timerElement.innerText = `Time Left: ${timeLeft} seconds`;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerElement.innerText = `Time Left: ${timeLeft} seconds`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showResult(false);
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(userAnswer) {
+            clearInterval(timerInterval);
+            const questionData = questions[currentQuestionIndex];
+
+            if (userAnswer === questionData.answer) {
+                showResult(true);
+            } else {
+                showResult(false);
+            }
+        }
+
+        function showResult(isCorrect) {
+            const resultElement = document.getElementById("result");
+            const questionData = questions[currentQuestionIndex];
+
+            if (isCorrect) {
+                resultElement.innerText = `Correct! ${questionData.clarification}`;
+                resultElement.className = "result success";
+            } else {
+                resultElement.innerText = `Incorrect. ${questionData.clarification}`;
+                resultElement.className = "result fail";
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                setTimeout(showQuestion, 3000);
+            } else {
+                document.getElementById("question").innerText = "Quiz Completed! Great job!";
+                document.getElementById("options").innerHTML = "";
+                document.getElementById("timer").innerText = "";
+            }
+        }
+
+        startQuiz();
+    </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #d9f3f7; /* pastel blue */
+            color: #2f4f4f;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #2a7f62; /* deep green */
+        }
+        h2 {
+            color: #2f4f4f;
+        }
+        .subject-selection {
+            margin-bottom: 20px;
+        }
+        .subject-selection button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #a3d9c9; /* pastel green */
+            border: none;
+            border-radius: 5px;
+            color: #2f4f4f;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .subject-selection button:hover {
+            background-color: #8bc4b5;
+        }
+        .scoreboard {
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #e3f8fc; /* light pastel blue */
+            border-radius: 10px;
+            width: fit-content;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+        .scoreboard div {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .hangman-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        canvas {
+            border: 2px solid #b3e5fc; /* pastel blue */
+            border-radius: 10px;
+            background-color: #e3f8fc; /* light pastel blue */
+            margin-bottom: 20px;
+        }
+        .word-container {
+            font-size: 2rem;
+            letter-spacing: 10px;
+            margin: 20px 0;
+            color: #2f4f4f;
+        }
+        .clue {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            color: #2a7f62; /* deep green */
+        }
+        .letters {
+            margin-top: 20px;
+        }
+        .letters button {
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 1rem;
+            border: none;
+            background-color: #90caf9; /* pastel blue */
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .letters button:hover {
+            background-color: #64b5f6; /* darker pastel blue */
+        }
+        .result {
+            font-size: 1.5rem;
+            margin-top: 20px;
+            color: #2f4f4f;
+        }
+        .result.correct {
+            color: #2a7f62; /* deep green */
+        }
+        .result.wrong {
+            color: #f05454; /* light red */
+        }
+    </style>
+</head>
+<body>
+    <h1>Hangman Game</h1>
+    <div class="subject-selection" id="subjectSelection">
+        <h2>Select a Subject</h2>
+        <button onclick="startGame('maths')">Maths</button>
+        <button onclick="startGame('biology')">Biology</button>
+        <button onclick="startGame('chemistry')">Chemistry</button>
+        <button onclick="startGame('physics')">Physics</button>
+    </div>
+    <div class="scoreboard" style="display: none;" id="scoreboard">
+        <div>Wins: <span id="scoreWins">0</span></div>
+        <div>Losses: <span id="scoreLosses">0</span></div>
+    </div>
+    <div class="hangman-container" style="display: none;" id="hangmanContainer">
+        <canvas id="hangmanCanvas" width="200" height="250"></canvas>
+        <div class="word-container" id="wordContainer"></div>
+        <div class="clue" id="clue"></div>
+        <div class="letters" id="letters"></div>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const subjects = {
+            maths: [
+                { word: "triangle", clue: "A three-sided polygon." },
+                { word: "parallelogram", clue: "A quadrilateral with opposite sides parallel." },
+                { word: "area", clue: "The measure of a 2D surface." },
+            ],
+            biology: [
+                { word: "photosynthesis", clue: "The process plants use to make food." },
+                { word: "cell", clue: "The basic unit of life." },
+                { word: "mitosis", clue: "Cell division process for growth." },
+            ],
+            chemistry: [
+                { word: "atom", clue: "The smallest unit of matter." },
+                { word: "reaction", clue: "When substances combine or change." },
+                { word: "molecule", clue: "Two or more atoms bonded together." },
+            ],
+            physics: [
+                { word: "gravity", clue: "Force that pulls objects towards Earth." },
+                { word: "energy", clue: "The ability to do work." },
+                { word: "motion", clue: "The change in an object's position." },
+            ]
+        };
+
+        let currentSubject, wordIndex, currentWord, guessedLetters, mistakes, maxMistakes;
+        let wins = 0;
+        let losses = 0;
+
+        function startGame(subject) {
+            currentSubject = subject;
+            wordIndex = 0;
+            document.getElementById("subjectSelection").style.display = "none";
+            document.getElementById("hangmanContainer").style.display = "block";
+            document.getElementById("scoreboard").style.display = "flex";
+            initGame();
+        }
+
+        function initGame() {
+            if (wordIndex >= subjects[currentSubject].length) {
+                document.getElementById("result").innerText = "🎉 You've completed all the words in this subject!";
+                document.getElementById("letters").innerHTML = `
+                    <button onclick="startGame('${currentSubject}')">Replay ${currentSubject}</button>
+                    <button onclick="location.reload()">Choose Another Subject</button>
+                `;
+                return;
+            }
+
+            const wordData = subjects[currentSubject][wordIndex];
+            currentWord = wordData.word.toUpperCase();
+            guessedLetters = new Set();
+            mistakes = 0;
+            maxMistakes = 6;
+
+            document.getElementById("clue").innerText = `Clue: ${wordData.clue}`;
+            document.getElementById("result").innerText = "";
+            drawCanvas();
+            drawWord();
+            createLetterButtons();
+        }
+
+        function drawCanvas() {
+            const canvas = document.getElementById("hangmanCanvas");
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#2f4f4f";
+
+            // Base
+            if (mistakes > 0) {
+                ctx.beginPath();
+                ctx.moveTo(10, 240);
+                ctx.lineTo(190, 240);
+                ctx.stroke();
+            }
+            // Pole
+            if (mistakes > 1) {
+                ctx.beginPath();
+                ctx.moveTo(50, 240);
+                ctx.lineTo(50, 20);
+                ctx.stroke();
+            }
+            // Beam
+            if (mistakes > 2) {
+                ctx.beginPath();
+                ctx.moveTo(50, 20);
+                ctx.lineTo(150, 20);
+                ctx.stroke();
+            }
+            // Rope
+            if (mistakes > 3) {
+                ctx.beginPath();
+                ctx.moveTo(150, 20);
+                ctx.lineTo(150, 50);
+                ctx.stroke();
+            }
+            // Head
+            if (mistakes > 4) {
+                ctx.beginPath();
+                ctx.arc(150, 70, 20, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            // Body
+            if (mistakes > 5) {
+                ctx.beginPath();
+                ctx.moveTo(150, 90);
+                ctx.lineTo(150, 150);
+                ctx.stroke();
+            }
+        }
+
+        function drawWord() {
+            const wordContainer = document.getElementById("wordContainer");
+            wordContainer.innerHTML = currentWord
+                .split("")
+                .map(letter => (guessedLetters.has(letter) ? letter : "_"))
+                .join(" ");
+        }
+
+        function createLetterButtons() {
+            const lettersContainer = document.getElementById("letters");
+            lettersContainer.innerHTML = "";
+
+            for (let i = 65; i <= 90; i++) {
+                const button = document.createElement("button");
+                button.innerText = String.fromCharCode(i);
+                button.onclick = () => handleGuess(button.innerText);
+                lettersContainer.appendChild(button);
+            }
+        }
+
+        function handleGuess(letter) {
+            if (guessedLetters.has(letter)) return;
+
+            guessedLetters.add(letter);
+            if (currentWord.includes(letter)) {
+                drawWord();
+                checkWin();
+            } else {
+                mistakes++;
+                drawCanvas();
+                checkLoss();
+            }
+        }
+
+        function checkWin() {
+            if (!document.getElementById("wordContainer").innerText.includes("_")) {
+                document.getElementById("result").innerText = "🎉 Correct! Moving to the next word...";
+                document.getElementById("result").className = "result correct";
+                wins++;
+                updateScoreboard();
+                disableButtons();
+                setTimeout(() => {
+                    wordIndex++;
+                    initGame();
+                }, 2000);
+            }
+        }
+
+        function checkLoss() {
+            if (mistakes === maxMistakes) {
+                document.getElementById("result").innerText = `😢 Game Over! The word was: ${currentWord}. Moving to the next word...`;
+                document.getElementById("result").className = "result wrong";
+                losses++;
+                updateScoreboard();
+                disableButtons();
+                setTimeout(() => {
+                    wordIndex++;
+                    initGame();
+                }, 3000);
+            }
+        }
+
+        function updateScoreboard() {
+            document.getElementById("scoreWins").innerText = wins;
+            document.getElementById("scoreLosses").innerText = losses;
+        }
+
+        function disableButtons() {
+            document.querySelectorAll(".letters button").forEach(button => {
+                button.disabled = true;
+            });
+        }
+    </script>
+</body>
+</html>

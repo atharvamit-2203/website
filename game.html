@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Games Cafe</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f3f4f6;
+    }
+    h1 {
+      color: #4CAF50;
+    }
+    #gameContainer {
+      width: 80%;
+      height: 500px;
+      border: 2px solid #ccc;
+      margin: 20px auto;
+      background: #fff;
+    }
+    select {
+      padding: 10px;
+      margin: 20px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Games Cafe</h1>
+  <p>Select a game to play from the dropdown menu:</p>
+  
+  <select id="gameSelector">
+    <option value="">-- Select a Game --</option>
+    <option value="hangman.html">Game 1 (Hangman)</option>
+    <option value="chemistry.html">Game 2 (Chemistry)</option>
+    <option value="Magnetic.html">Game 3 (CrossWord)</option>
+    <option value="going.html">Game 4 (Landmark Puzzle)</option>
+  </select>
+  <button onclick="loadGame()">Load Game</button>
+
+  <div id="gameContainer">
+    <iframe id="gameFrame" src="" width="100%" height="100%" frameborder="0"></iframe>
+  </div>
+
+  <script>
+    function loadGame() {
+      const gameSelector = document.getElementById('gameSelector');
+      const gameFrame = document.getElementById('gameFrame');
+      const selectedGame = gameSelector.value;
+
+      if (selectedGame) {
+        gameFrame.src = selectedGame;
+      } else {
+        alert('Please select a game!');
+      }
+    }
+  </script>
+</body>
+</html>
